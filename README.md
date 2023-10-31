@@ -1,4 +1,4 @@
-# Tetris! For Unity
+# CSI Project
 
 ## 📌 Topics
 
