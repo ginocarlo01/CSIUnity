@@ -16,19 +16,19 @@ namespace Imagine.WebAR
     {
         public string id;
         public Transform transform;
-        [HideInInspector] public Vector3 targetPos;
-        [HideInInspector] public Quaternion targetRot;
     }
 
     public class ImageTracker : MonoBehaviour
     {
+
         [DllImport("__Internal")] private static extern void StartWebGLiTracker(string ids, string name);
         [DllImport("__Internal")] private static extern void StopWebGLiTracker();
         [DllImport("__Internal")] private static extern float SetWebGLiTrackerSettings(string settings);
         [DllImport("__Internal")] private static extern bool IsWebGLiTrackerReady();
+        [DllImport("__Internal")] private static extern float GetCameraFov();
         [DllImport("__Internal")] private static extern float DebugImageTarget(string id);
         [DllImport("__Internal")] private static extern bool IsWebGLImageTracked(string id);
-        
+
 
         [SerializeField] private ARCamera trackerCam;
         [SerializeField] private List<ImageTarget> imageTargets;
@@ -42,26 +42,23 @@ namespace Imagine.WebAR
         [SerializeField] private bool overrideTrackerSettings = false;
         [SerializeField] private TrackerSettings trackerSettings;
 
-        [SerializeField] private bool dontDeactivateOnLost = false;
-        [SerializeField] private bool useExtraSmoothing = false;
-        [SerializeField] [Range(1f, 20)] private float smoothenFactor = 10;
-
         [SerializeField] private UnityEvent<string> OnImageFound, OnImageLost;
 
-        [SerializeField] [Range(1f, 5f)] private float debugCamMoveSensitivity = 2f;
-        [SerializeField] [Range(10f, 50f)] private float debugCamTiltSensitivity = 30f;
+        [SerializeField][Range(1f, 5f)] private float debugCamMoveSensitivity = 2f;
+        [SerializeField][Range(10f, 50f)] private float debugCamTiltSensitivity = 30f;
 
-        private int debugImageTargetIndex = 0;
-
-
+        [SerializeField]
+        bool keepObjectInScene;
         IEnumerator Start()
         {
 
-            if(transform.parent != null) {
+
+            if (transform.parent != null)
+            {
                 Debug.LogError("ImageTracker should be a root transform to receive Javascript messages");
             }
 
-            if(trackerCam == null)
+            if (trackerCam == null)
             {
                 trackerCam = GameObject.FindObjectOfType<ARCamera>();
             }
@@ -84,25 +81,38 @@ namespace Imagine.WebAR
             Application.targetFrameRate = overrideTrackerSettings ?
                 (int)this.trackerSettings.targetFrameRate :
                 (int)ImageTrackerGlobalSettings.Instance.defaultTrackerSettings.targetFrameRate;
-            
+
+#if IMAGINE_URP
+            //Debug.Log(GraphicsSettings.defaultRenderPipeline.GetType());
+            if (GraphicsSettings.currentRenderPipeline != null &&
+                 GraphicsSettings.defaultRenderPipeline.GetType().ToString().EndsWith("UniversalRenderPipelineAsset") &&
+                 trackerCam.videoPlaneMode == ARCamera.VideoPlaneMode.NONE
+                 )
+            {
+                Debug.Log("URP detected");
+                trackerCam.cam.clearFlags = CameraClearFlags.Depth;
+                trackerCam.cam.allowHDR = false;
+                var camData = trackerCam.GetComponent<UniversalAdditionalCameraData>();
+                camData.renderPostProcessing = false;
+
+                Debug.Log(trackerCam.cam.clearFlags + " " + camData.renderPostProcessing);
+            }
+#endif
 
 #if !UNITY_EDITOR && UNITY_WEBGL
-            // while (!IsWebGLiTrackerReady())
-            // {
-            //     Debug.Log("waiting for tracker ready");
-            //     yield return new WaitForSeconds(0.1f);
-            // }
+            while (!IsWebGLiTrackerReady())
+            {
+                yield return new WaitForSeconds(0.1f);
+            }
 
             StartWebGLiTracker(serializedIds, name);
             if (overrideTrackerSettings) {
                 Debug.Log(trackerSettings.Serialize());
                 SetWebGLiTrackerSettings(trackerSettings.Serialize());
             }
-
-            //trackerCam.cam.fieldOfView = GetCameraFov();
+            trackerCam.cam.fieldOfView = GetCameraFov();
 #endif
 
-            Debug.Log("tracker started!");
             yield break;
         }
 
@@ -147,14 +157,16 @@ namespace Imagine.WebAR
             return IsWebGLImageTracked(id);
         }
 
+ 
+
         void OnTrackingFound(string id)
         {
             if (!targets.ContainsKey(id))
                 return;
 
             targets[id].transform.gameObject.SetActive(true);
-            
-            if(!trackedIds.Contains(id))
+
+            if (!trackedIds.Contains(id))
                 trackedIds.Add(id);
             else
                 Debug.LogError("Found an already tracked id - " + id);
@@ -162,21 +174,34 @@ namespace Imagine.WebAR
             OnImageFound?.Invoke(id);
         }
 
+
         void OnTrackingLost(string id)
         {
             if (!targets.ContainsKey(id))
                 return;
 
-            targets[id].transform.gameObject.SetActive(false || dontDeactivateOnLost);
+            if (!keepObjectInScene)
+                targets[id].transform.gameObject.SetActive(false);
 
             var index = trackedIds.FindIndex(t => t == id);
             if (index > -1)
             {
                 trackedIds.RemoveAt(index);
             }
-            else{
+            else
+            {
                 Debug.LogError("Lost an untracked id - " + id);
             }
+
+
+            //HACK:clear to fix ghosting issue
+            //cam.clearFlags = CameraClearFlags.SolidColor;
+            //cam.Render();
+            //cam.clearFlags = CameraClearFlags.Depth;
+            //cam.Render();
+
+            //GL.Clear(true, true, Color.black);
+            //cam.Render();
 
             OnImageLost?.Invoke(id);
         }
@@ -221,15 +246,8 @@ namespace Imagine.WebAR
 
             if (trackerOrigin == TrackerOrigin.CAMERA_ORIGIN)
             {
-                if(!useExtraSmoothing){
-                    target.position = pos;
-                    target.rotation = rot;
-                }
-                else{
-                    targets[id].targetPos = pos;
-                    targets[id].targetRot = rot;
-                }
-                
+                target.position = pos;
+                target.rotation = rot;
             }
 
             else if (trackerOrigin == TrackerOrigin.FIRST_TARGET_ORIGIN)
@@ -242,34 +260,34 @@ namespace Imagine.WebAR
 
                     trackerCam.transform.position = Quaternion.Inverse(rot) * -pos;
                     trackerCam.transform.rotation = Quaternion.Inverse(rot);
-                    
                 }
                 else
                 {
                     //succeeding targets relative to camera
                     target.position = trackerCam.transform.TransformPoint(pos);
                     target.rotation = trackerCam.transform.rotation * rot;
-                    
                 }
+
+
             }
+
         }
 
+        void ResizeVideo(string dims)
+        {
+            var vals = dims.Split(new string[] { "," }, System.StringSplitOptions.RemoveEmptyEntries);
+            var width = int.Parse(vals[0]);
+            var height = int.Parse(vals[1]);
+        }
+
+        private int debugImageTargetIndex = 0;
         private void Update()
         {
-            if(useExtraSmoothing){
-                foreach(var target in imageTargets){
-                    if(target.transform.gameObject.activeSelf){
-                        target.transform.position = Vector3.Lerp(target.transform.position, target.targetPos, Time.deltaTime * smoothenFactor);
-                        target.transform.rotation = Quaternion.Slerp(target.transform.rotation, target.targetRot, Time.deltaTime * smoothenFactor);
-                    }
-                }
-            }
-
             if (trackerSettings.debugMode)
             {
                 if (Input.GetKeyDown(KeyCode.I))
                 {
-                    if(debugImageTargetIndex >= imageTargets.Count)
+                    if (debugImageTargetIndex >= imageTargets.Count)
                     {
                         debugImageTargetIndex = 0;
                         DebugImageTarget("");
@@ -332,6 +350,17 @@ namespace Imagine.WebAR
             trackerCam.transform.Translate(dp);
             //trackerCam.transform.position += dp;
             trackerCam.transform.rotation = rot;
+        }
+
+        public void SetKeepObjectInScene(bool value)
+        {
+            keepObjectInScene = value;
+            Debug.Log(keepObjectInScene);
+        }
+
+        public bool GetKeepObjectInScene()
+        {
+            return keepObjectInScene;
         }
     }
 }
