@@ -27,5 +27,5 @@ All 3D models used in the construction of this game were made by Mary
 ## 👨‍💻 Team
 [Gino Carlo](https://ginocarlo01.itch.io/)
 --> responsible for the Level Design and Programming of this project
-[Mary]https://github.com/MaryOgino7
+[Mary](https://github.com/MaryOgino7)
 --> responsible for the Art and Models of this project
