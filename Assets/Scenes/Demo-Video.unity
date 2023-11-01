@@ -1575,6 +1575,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mainCamera: {fileID: 963194227}
   mode: 0
+  negative: 0
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -1672,10 +1673,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1db6645ce0ae471e9d34b34cfe4a207, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cam: {fileID: 0}
+  editorCamera: 
   paused: 0
   videoPlaneMode: 0
-  videoPlaneMat: {fileID: 2100000, guid: 5fcf84687f1c84908b9ab8e7459ed53f, type: 2}
   videoDistance: 100
+  webcamTextureInitializing: 0
 --- !u!1 &1028133480
 GameObject:
   m_ObjectHideFlags: 0

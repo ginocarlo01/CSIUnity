@@ -47,25 +47,9 @@ MonoBehaviour:
   trackerCam: {fileID: 0}
   imageTargets: []
   trackerOrigin: 0
-  trackedIds: []
   overrideTrackerSettings: 1
   trackerSettings:
     maxSimultaneousTargets: 1
-    targetFrameRate: 60
-    advancedSettings:
-      maxFrameLength: 500
-      maxFrameArea: 40
-      trackedPoints: 40
-      detectInterval: 200
-    debugMode: 0
-  dontDeactivateOnLost: 0
-  useExtraSmoothing: 0
-  smoothenFactor: 0
-  OnImageFound:
-    m_PersistentCalls:
-      m_Calls: []
-  OnImageLost:
-    m_PersistentCalls:
-      m_Calls: []
-  debugCamMoveSensitivity: 2
-  debugCamTiltSensitivity: 30
+    trackingQuality: 0
+    targetFrameRate: 24
+    enableNoiseFilter: 1

@@ -75,7 +75,7 @@ namespace Imagine.WebAR{
         [SerializeField] [Range(24, 80)] public float maxFrameArea = 40;
 
         [Tooltip("Higher values will improve stability, but decreases frame rate")]
-        [SerializeField] [Range(16, 80)] public int trackedPoints = 40;
+        [SerializeField] [Range(16, 80)] public int trackedPoints = 25;
 
         [Tooltip("Lower intervals will speed up detection, especially on multiple targets, but significantly decreases frame rate. Value in millisecods")]
         [SerializeField] [Range(0, 1000)] public int detectInterval = 200;
@@ -128,5 +128,15 @@ namespace Imagine.WebAR{
             }
         }
     }
+
+    public static class FloatExtensions
+    {
+        //this is needed to properly convert floating point strings for some languages to JSON
+        public static string ToStringInvariantCulture(this float f)
+        {
+            return f.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        }
+    }
+
 }
 
