@@ -5,22 +5,17 @@ using UnityEngine;
 public class UIManager : MonoBehaviour
 {
     [SerializeField]
-    GameObject SuspectsGameObjects;
+    public GameObject[] suspectsGameObjects; //array of game objects
 
     void Start()
     {
-        SuspectsGameObjects.SetActive(false);
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
+        foreach (GameObject obj in suspectsGameObjects)
+        {
+            obj.SetActive(false);
+        }
         
     }
 
-    public void DigitalsBtn()
-    {
-        SuspectsGameObjects.SetActive(true);
-    }
+    
 
 }
