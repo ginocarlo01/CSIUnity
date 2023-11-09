@@ -8,6 +8,6 @@ public class DigitalManager : MonoBehaviour
     {
         UIManager uiObj = GameObject.FindGameObjectWithTag("UIManager").GetComponent<UIManager>();
 
-        uiObj.suspectsGameObjects[indexObj].SetActive(true);
+        uiObj.percentageTextResult[indexObj].SetActive(true);
     }
 }
