@@ -1,13 +1,27 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
     [SerializeField]
-    public GameObject[] percentageTextResult; //array of game objects
+    public GameObject[] percentageTextResult;
 
-    public GameObject[] personGameObject; //array of game objects
+    [SerializeField]
+    public GameObject[] personGameObject;
+
+    [SerializeField]
+    public GameObject[] listenersGameObject;
+
+    [SerializeField]
+    public Image[] SFXBtn;
+
+    [SerializeField]
+    public Sprite playBtn;
+
+    [SerializeField]
+    public Sprite waveSoundBtn;
 
     void Start()
     {
@@ -20,6 +34,8 @@ public class UIManager : MonoBehaviour
         {
             obj.SetActive(false);
         }
+
+        DisableAllListeners();
 
     }
     public void PersonBtn(int indexObj)
@@ -36,5 +52,30 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    public void ListenerBtn(int indexObj)
+    {
+        DisableAllListeners();
+        listenersGameObject[indexObj].SetActive(true);
+    }
+
+    private void DisableAllListeners()
+    {
+        foreach (GameObject obj in listenersGameObject)
+        {
+            obj.SetActive(false);
+        }
+    }
+
+    public void AudioHasFinished(bool finished, int index)
+    {
+        if (finished)
+        {
+            SFXBtn[index].sprite = playBtn;
+        }
+        else
+        {
+            SFXBtn[index].sprite = waveSoundBtn;
+        }
+    }
 
 }
