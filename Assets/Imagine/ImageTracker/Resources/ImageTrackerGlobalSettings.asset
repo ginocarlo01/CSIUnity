@@ -39,6 +39,14 @@ MonoBehaviour:
     texture: {fileID: 2800000, guid: 740e78603d0985a4c87fac3da90d7484, type: 3}
   - id: Suspeitos
     texture: {fileID: 2800000, guid: 01441cd53a36d02478374415df28c9ba, type: 3}
+  - id: 04 - Suspeitos
+    texture: {fileID: 2800000, guid: 01441cd53a36d02478374415df28c9ba, type: 3}
+  - id: 04 - FacaDigitais
+    texture: {fileID: 2800000, guid: 740e78603d0985a4c87fac3da90d7484, type: 3}
+  - id: 05 - MaquinaEletroforese
+    texture: {fileID: 2800000, guid: 9fd889bc468cbca4db07a9ad59bc84f4, type: 3}
+  - id: 06 - MaquinaPCR
+    texture: {fileID: 2800000, guid: 04ad36f56269f1e42afb44cd46d62a98, type: 3}
   defaultTrackerSettings:
     maxSimultaneousTargets: 1
     targetFrameRate: 30
