@@ -15,13 +15,20 @@ public class UIManager : MonoBehaviour
     public GameObject[] listenersGameObject;
 
     [SerializeField]
-    public Image[] SFXBtn;
+    public Animator[] SFXBtn;
 
     [SerializeField]
     public Sprite playBtn;
 
     [SerializeField]
     public Sprite waveSoundBtn;
+
+    [SerializeField]
+    public GameObject wrongAnswer;
+
+    [SerializeField]
+    public GameObject rightAnswer;
+
 
     void Start()
     {
@@ -36,6 +43,8 @@ public class UIManager : MonoBehaviour
         }
 
         DisableAllListeners();
+
+        DisableAllAnswers();
 
     }
     public void PersonBtn(int indexObj)
@@ -70,12 +79,31 @@ public class UIManager : MonoBehaviour
     {
         if (finished)
         {
-            SFXBtn[index].sprite = playBtn;
+            SFXBtn[index].SetBool("playing", false);
         }
         else
         {
-            SFXBtn[index].sprite = waveSoundBtn;
+            SFXBtn[index].SetBool("playing", true);
         }
+    }
+
+    public void DisableAllAnswers()
+    {
+        wrongAnswer.SetActive(false);
+        rightAnswer.SetActive(false);
+    }
+
+    public void RightAnswer()
+    {
+        rightAnswer.SetActive(true);
+        wrongAnswer.SetActive(false) ;
+
+    }
+
+    public void WrongAnswer()
+    {
+        rightAnswer.SetActive(false);
+        wrongAnswer.SetActive(true);
     }
 
 }
