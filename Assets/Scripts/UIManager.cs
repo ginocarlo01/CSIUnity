@@ -87,6 +87,14 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    public void FinishAllAudioAnimation()
+    {
+        for(int i = 0; i < SFXBtn.Length; i++)
+        {
+            SFXBtn[i].SetBool("playing", false) ;
+        }
+    }
+
     public void DisableAllAnswers()
     {
         wrongAnswer.SetActive(false);

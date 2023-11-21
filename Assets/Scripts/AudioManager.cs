@@ -28,7 +28,7 @@ public class AudioManager : MonoBehaviour
         StartCoroutine(WaitAudioEnd(clip.length, audioIndex));
     }
 
-    private void StopAudio()
+    public void StopAudio()
     {
         audioSource.Stop();
     }
