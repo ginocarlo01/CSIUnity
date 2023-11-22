@@ -51,9 +51,9 @@ namespace Imagine.WebAR
         bool keepObjectInScene;
         IEnumerator Start()
         {
+            keepObjectInScene = true;
 
-
-            if(transform.parent != null) {
+            if (transform.parent != null) {
                 Debug.LogError("ImageTracker should be a root transform to receive Javascript messages");
             }
 
@@ -74,7 +74,6 @@ namespace Imagine.WebAR
                     serializedIds += ",";
                 }
             }
-            Debug.Log(serializedIds);
 
 
             Application.targetFrameRate = overrideTrackerSettings ?
@@ -166,6 +165,8 @@ namespace Imagine.WebAR
             if (!targets.ContainsKey(id))
                 return;
 
+            DisableAllTargets();
+
             targets[id].transform.gameObject.SetActive(true);
             
             if(!trackedIds.Contains(id))
@@ -177,13 +178,27 @@ namespace Imagine.WebAR
         }
 
         
+        void DisableAllTargets()
+        {
+            
+
+            foreach(var target in targets.Values)
+            {
+                target.transform.gameObject.SetActive(false) ;
+            }
+        }
+
         void OnTrackingLost(string id)
         {
             if (!targets.ContainsKey(id))
                 return;
 
-            if(!keepObjectInScene)
-            targets[id].transform.gameObject.SetActive(false);
+            if (!keepObjectInScene)
+            {
+                print("Objeto saiu de vista");
+                targets[id].transform.gameObject.SetActive(false);
+            }
+            
 
             var index = trackedIds.FindIndex(t => t == id);
             if (index > -1)
